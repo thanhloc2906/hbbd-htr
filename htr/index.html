@@ -2,31 +2,24 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Khóa mạnh nhất cho các tiện ích và trình duyệt đảo màu -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="color-scheme" content="only light">
     <meta name="darkreader-lock">
     <title>Happy Birthday To You!</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <!-- Thư viện Three.js và OrbitControls cho Bánh Kem Ngàn Sao 3D -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
     <style>
-        :root {
-            color-scheme: only light;
-        }
+        :root { color-scheme: only light; }
         body {
             font-family: 'Quicksand', sans-serif; margin: 0; overflow: hidden;
-            /* Chỉnh lại thành màu xanh dương nhạt RÕ RỆT (Baby Blue) */
             background: radial-gradient(circle at center, #cce4f7 0%, #9bc2e6 60%, #7db4eb 100%) !important;
             background-color: #92c8fa !important;
             color: #4a4a4a !important; transition: background 1.5s ease;
         }
-        
         body.universe-mode { background: #020011 !important; background-color: #020011 !important; color: #fff !important; }
         body.universe-mode .bg-balloons, body.universe-mode .bg-fixed-decor { display: none; }
 
@@ -34,7 +27,19 @@
         .title-text { text-shadow: 2px 2px 8px rgba(255, 105, 180, 0.3); color: #d81b60; }
         .subtitle-text { color: #ad1457; letter-spacing: 2px; }
 
-        /* --- NỀN BÓNG BAY & DECOR CỐ ĐỊNH --- */
+        /* --- XỬ LÝ XOAY MÀN HÌNH --- */
+        #orientation-blocker { display: none; }
+        @media (max-width: 899px) and (orientation: portrait) {
+            #orientation-blocker {
+                display: flex; position: fixed; inset: 0; background: #0a0a1a; z-index: 99999;
+                flex-direction: column; justify-content: center; align-items: center; text-align: center; color: white;
+            }
+            .screen, .bg-balloons, .bg-fixed-decor { display: none !important; }
+            .rotate-icon { font-size: 5rem; animation: rotatePhone 2s infinite ease-in-out alternate; margin-bottom: 20px;}
+        }
+        @keyframes rotatePhone { 0% { transform: rotate(0deg); } 100% { transform: rotate(-90deg); } }
+
+        /* --- NỀN BÓNG BAY & DECOR --- */
         .bg-balloons { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
         .balloon { position: absolute; width: 60px; height: 75px; background: radial-gradient(circle at 30% 30%, #fff, #ffb6c1 30%, #ff69b4 100%); border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%; box-shadow: inset -5px -5px 10px rgba(0,0,0,0.1), 0 5px 15px rgba(255,105,180,0.3); animation: floatBalloon 10s ease-in-out infinite alternate; }
         .balloon::after { content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%); border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 8px solid #ff69b4; }
@@ -97,6 +102,10 @@
         @keyframes ignite { to { opacity: 1; transform: translateX(-50%) scale(1); } }
         @keyframes flicker { 0% { transform: translateX(-50%) scale(1) skewX(1deg); opacity: 0.9; } 100% { transform: translateX(-50%) scale(1.1) skewX(-1deg); opacity: 1; box-shadow: 0 0 25px #ffff00, 0 0 40px #ff9800; } }
 
+        /* Animation cho lúc thổi nến */
+        .blow-out { animation: extinguish 0.4s forwards !important; }
+        @keyframes extinguish { 0% { opacity: 1; transform: translateX(-50%) scale(1.2); } 100% { opacity: 0; transform: translateX(-50%) scale(0) translateY(-20px); box-shadow: none; } }
+
         /* --- LÁ THƯ --- */
         .env-wrapper { position: relative; width: 320px; height: 200px; margin: 0 auto; margin-top: 80px; cursor: pointer; transition: transform 0.3s; perspective: 1000px; z-index: 20; }
         .env-wrapper:hover { transform: translateY(-10px); }
@@ -125,8 +134,12 @@
             transform: translateY(40px) scale(1.05); 
             height: 260px; 
             z-index: 10; 
+            overflow-y: auto;
             transition: transform 0.9s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), height 0.9s 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s 0.3s; 
         }
+        /* Ẩn thanh cuộn cho thư */
+        .env-letter::-webkit-scrollbar { display: none; }
+        .env-letter { -ms-overflow-style: none; scrollbar-width: none; }
 
         /* --- LOADING & ĐẾM NGƯỢC --- */
         #loading-screen { position: absolute; inset: 0; background: #05001a; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; color: white; }
@@ -143,7 +156,7 @@
         @keyframes popCount { 0% { transform: scale(0.2); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } 100% { transform: scale(1); opacity: 0; } }
 
         /* --- VŨ TRỤ (CẬP NHẬT 3D) --- */
-        #screen-universe { perspective: 1200px; pointer-events: none; } /* Để thao tác kéo chuột xuyên qua layer UI chạm được OrbitControls */
+        #screen-universe { perspective: 1200px; pointer-events: none; } 
         #three-canvas-container { position: absolute; inset: 0; z-index: -1; pointer-events: auto; }
         #universe-elements { position: absolute; inset: 0; transform-style: preserve-3d; z-index: 15; pointer-events: none; }
         
@@ -162,33 +175,42 @@
 
         .fireworks-btn { position: absolute; bottom: 8%; left: 50%; transform: translateX(-50%); z-index: 50; background: linear-gradient(45deg, #ff007f, #7928ca); box-shadow: 0 0 25px rgba(255, 0, 128, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4); border: 2px solid #ff80bf; transition: all 0.3s ease; pointer-events: auto; }
         .fireworks-btn:hover { transform: translateX(-50%) scale(1.1); box-shadow: 0 0 40px rgba(255, 0, 128, 1), inset 0 0 15px rgba(255, 255, 255, 0.6); }
+        
+        /* CSS Overlay cho Màn vũ trụ */
+        #universe-overlay { position: absolute; bottom: 12%; left: 50%; transform: translateX(-50%); z-index: 50; display: flex; flex-direction: column; align-items: center; pointer-events: none; opacity: 0; transition: opacity 1.5s ease; }
+        #universe-overlay.show { opacity: 1; }
+        .u-age-text { font-family: 'Dancing Script', cursive; font-size: 5rem; font-weight: bold; color: #ffb6c1; text-shadow: 0 0 15px #ff1493, 0 0 30px #ff1493; margin-bottom: 20px; animation: pulseGlow 2s infinite alternate; white-space: nowrap; }
+        @keyframes pulseGlow { from { text-shadow: 0 0 10px #ff1493, 0 0 20px #ff69b4; transform: scale(1); } to { text-shadow: 0 0 20px #fff, 0 0 40px #ff1493, 0 0 60px #ff1493; transform: scale(1.05); } }
+
         #giant-hbd { position: absolute; top: 15%; left: 50%; transform: translate(-50%, -50%) scale(0); z-index: 20; font-family: 'Dancing Script', cursive; font-size: 6rem; font-weight: bold; text-align: center; line-height: 1.2; color: #fff; text-shadow: 0 0 20px #ff1493, 0 0 40px #ff1493, 0 0 60px #ff69b4, 0 0 80px #ffb6c1; white-space: nowrap; opacity: 0; pointer-events: none; }
         .pop-out { animation: popGiantText 1.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popGiantText { 0% { transform: translate(-50%, -50%) scale(0); opacity: 0; } 70% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; } }
         
         #canvas-bg { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 80; pointer-events: none; }
-
-        /* --- MÀN HÌNH CHẶN ÉP BUỘC XOAY NGANG --- */
-        #orientation-blocker { position: fixed; inset: 0; background: #05001a; z-index: 999999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 20px; }
-        @media screen and (orientation: portrait) {
-            #orientation-blocker { display: flex !important; }
-            .screen, .bg-balloons, .bg-fixed-decor, canvas, #three-canvas-container { display: none !important; }
-        }
-        .rotate-icon { font-size: 5rem; display: inline-block; animation: rotateDevice 1.5s ease-in-out infinite alternate; margin-bottom: 20px; }
-        @keyframes rotateDevice { 0% { transform: rotate(0deg); } 100% { transform: rotate(-90deg); } }
-
-        /* --- TỐI ƯU HIỂN THỊ KHI QUAY NGANG --- */
+        
+        /* --- TỐI ƯU HIỂN THỊ KHI QUAY NGANG CHỈNH SỬA LẠI THEO YÊU CẦU --- */
         @media (max-height: 500px) {
             #screen-gift h1 { font-size: 2.2rem !important; margin-bottom: 15px !important; }
             .gift-wrapper { animation: giftBreathMobile 2.5s ease-in-out infinite; margin-top: -10px; }
             .gift-wrapper:hover { animation: none; transform: scale(0.7); }
             #screen-gift p { margin-top: 15px !important; font-size: 0.8rem; }
             
-            #screen-cake h1 { font-size: 3.2rem !important; margin-bottom: 0 !important; margin-top: 10px; }
+            /* Giữ chữ trên cao và bánh kem hiện vừa phải, không bị lún quá sâu */
+            #screen-cake h1 { position: absolute; top: 15px; left: 0; width: 100%; font-size: 3.5rem !important; margin: 0 !important; z-index: 10; text-align: center; }
             #screen-cake h2 { display: none; }
-            .cake-assembly { transform: scale(0.5); margin-top: -70px; margin-bottom: -50px; }
-            #btn-next-letter { padding: 8px 25px !important; font-size: 1rem !important; }
+            .cake-assembly { 
+                position: absolute; 
+                bottom: -15px; 
+                left: 50%;
+                transform: translateX(-50%) scale(0.65);
+                transform-origin: bottom center;
+                margin: 0; 
+                z-index: 1;
+            }
+            .cake-buttons-wrapper { position: absolute; bottom: 15px; z-index: 50; width: 100%; display: flex; justify-content: center; }
+            #btn-blow-candles, #btn-next-letter { padding: 8px 30px !important; font-size: 1.1rem !important; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
             
+            /* Sửa lại kích cỡ thư */
             .env-wrapper { transform: scale(0.7); margin-top: 10px; }
             .env-wrapper.open .env-letter { transform: translateY(20px) scale(1.05); height: 210px; }
             #screen-letter h3 { font-size: 1.5rem; margin-bottom: 5px;}
@@ -196,7 +218,9 @@
             #photo-btn { padding: 6px 20px !important; font-size: 0.9rem !important; }
             #letter-instruction { margin-top: 10px !important; }
             
-            #giant-hbd { font-size: 4rem !important; }
+            .u-age-text { font-size: 3rem !important; margin-bottom: 10px !important; }
+
+            #giant-hbd { font-size: 4rem !important; top: 20%; }
             #giant-hbd span { font-size: 2rem !important; }
             .fireworks-btn { padding: 10px 20px !important; font-size: 1rem !important; bottom: 5% !important; }
         }
@@ -205,10 +229,11 @@
 </head>
 <body>
 
+    <!-- Yêu cầu xoay ngang -->
     <div id="orientation-blocker">
         <div class="rotate-icon">📱</div>
-        <h2 class="text-2xl md:text-3xl font-bold mb-4 font-quicksand">Vui lòng xoay ngang điện thoại</h2>
-        <p class="text-gray-300 text-lg font-quicksand">Để trải nghiệm món quà này tốt nhất ở chế độ toàn màn hình ngang!</p>
+        <h2 class="text-2xl md:text-3xl font-bold mb-4 font-quicksand px-4">Vui lòng xoay ngang điện thoại</h2>
+        <p class="text-gray-300 text-lg font-quicksand px-4">Để trải nghiệm món quà này tốt nhất ở chế độ toàn màn hình!</p>
     </div>
 
     <!-- Nhạc Nền -->
@@ -216,7 +241,7 @@
     <audio id="universe-music" src="vutru.mp3" loop crossorigin="anonymous"></audio>
     <audio id="fw-sound-1" src="phaohoa.mp3" crossorigin="anonymous"></audio>
     <audio id="fw-sound-2" src="phaohoa.mp3" crossorigin="anonymous"></audio>
-    <audio id="fw-sound-3" src=".mp3" crossorigin="anonymous"></audio>
+    <audio id="fw-sound-3" src="phaohoa.mp3" crossorigin="anonymous"></audio>
 
     <div class="bg-fixed-decor">
         <div class="decor-item decor-1">🎈</div><div class="decor-item decor-2">🧸</div><div class="decor-item decor-3">🎁</div>
@@ -236,13 +261,14 @@
             <div class="gift-lid"><div class="bow"><div class="bow-center"></div></div></div>
             <div class="gift-box"></div>
         </div>
-        <p class="mt-20 text-gray-500 font-semibold animate-pulse">Vui lòng xoay ngang màn hình nếu dùng điện thoại</p>
+        <p class="mt-20 text-gray-500 font-semibold animate-pulse px-4 text-center">Vui lòng xoay ngang màn hình nếu dùng điện thoại</p>
     </div>
 
-    <!-- MÀN 2: BÁNH KEM -->
+    <!-- MÀN 2: BÁNH KEM & THỔI NẾN (ĐÃ FIX LỖI NHÂN ĐÔI CODE) -->
     <div id="screen-cake" class="screen" style="pointer-events: auto;">
         <h1 class="text-6xl md:text-8xl font-bold mb-2 font-cursive text-center title-text">Happy Birthday!</h1>
         <h2 class="text-xl md:text-2xl mb-8 font-bold uppercase subtitle-text"></h2>
+        
         <div class="cake-assembly mb-12">
             <div class="piece plate"></div>
             <div class="piece tier-1"></div>
@@ -259,9 +285,15 @@
             </div>
         </div>
 
-        <button id="btn-next-letter" onclick="goToLetter()" class="opacity-0 px-10 py-4 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white rounded-full font-bold text-xl shadow-xl transition-all transform hover:scale-110 duration-500">
-            Đi tiếp
-        </button>
+        <div class="cake-buttons-wrapper">
+            <!-- Nút thổi nến được ẩn ban đầu bằng opacity-0 -->
+            <button id="btn-blow-candles" onclick="blowOutCandles()" class="opacity-0 px-8 py-3 bg-gradient-to-r from-blue-400 to-cyan-500 hover:from-blue-500 hover:to-cyan-600 text-white rounded-full font-bold text-xl shadow-xl transition-all transform hover:scale-110 duration-500 mt-6 z-30">
+                Thổi nến 🌬️
+            </button>
+            <button id="btn-next-letter" onclick="goToLetter()" class="hidden opacity-0 px-10 py-4 bg-gradient-to-r from-pink-500 to-rose-400 hover:from-pink-600 hover:to-rose-500 text-white rounded-full font-bold text-xl shadow-xl transition-all transform hover:scale-110 duration-500 mt-6 z-30">
+                Đi tiếp 💌
+            </button>
+        </div>
     </div>
 
     <!-- MÀN 3: THƯ TAY -->
@@ -277,7 +309,7 @@
                         Thank for everything-2906 ✨
                     </p>
                 </div>
-                <div class="flex justify-center mt-3 pb-2">
+                <div class="flex justify-center mt-3 pb-2 shrink-0">
                     <button id="photo-btn" class="hidden px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white font-bold rounded-full shadow-lg transition transform hover:scale-105 text-sm" onclick="event.stopPropagation(); startLoadingUniverse();">
                         tiếp 🌌
                     </button>
@@ -307,6 +339,12 @@
         <div id="three-canvas-container"></div>
         <div id="universe-elements"></div>
         <div id="giant-hbd">Happy Birthday<br><span style="font-size: 3rem; color: #fff;">.</span></div>
+        
+        <!-- LỜI CHÚC CHO MÀN 3D CHỈ HIỆN KHI BẮN PHÁO HOA -->
+        <div id="universe-overlay">
+            <h2 class="u-age-text">Tuổi 18 Rực Rỡ!</h2>
+        </div>
+
         <button onclick="triggerUltimateFireworks()" id="fw-btn" class="hidden fireworks-btn px-8 py-4 text-white font-bold rounded-full text-lg cursor-pointer">
             Bắn Pháo Hoa 🎉
         </button>
@@ -324,14 +362,22 @@
         let bgMusic = document.getElementById('bg-music');
         let universeMusic = document.getElementById('universe-music'); 
         let fwSounds = [document.getElementById('fw-sound-1'), document.getElementById('fw-sound-2'), document.getElementById('fw-sound-3')];
+        
         let currentFwSound = 0;
+        let lastFwSoundTime = 0;
 
         function playFwSound() {
+            let now = Date.now();
+            if (now - lastFwSoundTime < 150) return; 
+            lastFwSoundTime = now;
+
             try {
-                fwSounds[currentFwSound].currentTime = 0; 
-                fwSounds[currentFwSound].volume = 0.5; 
-                fwSounds[currentFwSound].play().catch(e => console.log("Audio play blocked by browser policy"));
-                currentFwSound = (currentFwSound + 1) % fwSounds.length; 
+                if (fwSounds[currentFwSound]) {
+                    fwSounds[currentFwSound].currentTime = 0; 
+                    fwSounds[currentFwSound].volume = 0.2;
+                    fwSounds[currentFwSound].play().catch(e => {});
+                    currentFwSound = (currentFwSound + 1) % fwSounds.length; 
+                }
             } catch (e) {}
         }
 
@@ -345,8 +391,10 @@
             if(wrapper.classList.contains('opened')) return;
             wrapper.classList.add('opened');
             
-            bgMusic.volume = 0.4;
-            bgMusic.play().catch(e => console.log("Audio autoplay restricted"));
+            if (bgMusic) {
+                bgMusic.volume = 0.4;
+                bgMusic.play().catch(e => console.log("Audio autoplay restricted"));
+            }
 
             spawnConfetti(window.innerWidth/2, window.innerHeight/2, 60);
             setTimeout(goToCake, 1000);
@@ -360,8 +408,27 @@
                 setTimeout(() => {
                     document.querySelectorAll('.flame').forEach((flame, idx) => { flame.style.animationDelay = `${idx * 0.2}s`; flame.classList.add('animate-flame'); });
                 }, 1800);
-                setTimeout(() => { document.getElementById('btn-next-letter').classList.replace('opacity-0', 'opacity-100'); }, 3000);
+                
+                // Hiện nút Thổi nến
+                setTimeout(() => { 
+                    const btnBlow = document.getElementById('btn-blow-candles');
+                    if(btnBlow) btnBlow.classList.replace('opacity-0', 'opacity-100'); 
+                }, 3000);
             }, 800);
+        }
+
+        // Logic xử lý khi thổi nến
+        function blowOutCandles() {
+            // Tắt lửa trên nến
+            document.querySelectorAll('.flame').forEach(flame => flame.classList.add('blow-out'));
+            
+            // Ẩn nút thổi nến và hiện nút đi tiếp
+            document.getElementById('btn-blow-candles').style.display = 'none';
+            const nextBtn = document.getElementById('btn-next-letter');
+            nextBtn.classList.remove('hidden');
+            
+            // Có khoảng trễ ngắn để lửa biến mất trước khi hiện nút
+            setTimeout(() => { nextBtn.classList.replace('opacity-0', 'opacity-100'); }, 600);
         }
 
         function goToLetter() { switchScreen('screen-cake', 'screen-letter'); }
@@ -387,7 +454,7 @@
             
             let progress = 0;
             let loadedImages = 0;
-            myPhotos.forEach(src => { let img = new Image(); img.onload = () => { loadedImages++; }; img.src = src; });
+            myPhotos.forEach(src => { let img = new Image(); img.onload = () => { loadedImages++; }; img.onerror = () => { loadedImages++; }; img.src = src; });
 
             let interval = setInterval(() => {
                 progress += Math.random() * 15; 
@@ -401,107 +468,67 @@
                     btnStart.style.display = 'block';
                 } else {
                     loadBar.style.width = progress + '%';
-                    loadText.innerText = progress < 30 ? `Nạp nhiên liệu... ${Math.floor(progress)}%` : (progress < 70 ? `Kết nối dải Ngân Hà... ${Math.floor(progress)}%` : `Tải hình ảnh kỷ niệm... ${Math.floor(progress)}%`);
+                    loadText.innerText = progress < 30 ? `Nạp nhiên liệu... ${Math.floor(progress)}%` : (progress < 70 ? `Kết nối dải Ngân Hà... ${Math.floor(progress)}%` : `Tải hình ảnh... ${Math.floor(progress)}%`);
                 }
             }, 300);
         }
 
-        function speakWord(word) {
-            if('speechSynthesis' in window) {
-                let msg = new SpeechSynthesisUtterance(word);
-                msg.lang = 'vi-VN'; 
-                msg.rate = 1.1; 
-                msg.pitch = 2.0; 
-
-                let voices = window.speechSynthesis.getVoices();
-                let vnFemaleVoice = voices.find(v => v.lang.includes('vi') && (v.name.includes('Female') || v.name.includes('Linh') || v.name.includes('Google')));
-                if(vnFemaleVoice) msg.voice = vnFemaleVoice;
-
-                window.speechSynthesis.speak(msg);
-            }
-        }
-        window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
-
         function startCountdown() {
-            // Thêm hàm speakWord để cấu hình giọng nói
-function speakWord(word) {
-    // Kiểm tra xem trình duyệt có hỗ trợ SpeechSynthesis không
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(word);
-        
-        // Cài đặt tiếng Anh
-        utterance.lang = 'en-US'; 
-        
-        // Tùy chỉnh độ cao (Pitch) từ 0 đến 2. Mức 1.8-2.0 sẽ cho giọng rất thanh/cao.
-        utterance.pitch = 1.8; 
-        
-        // Tốc độ đọc (Rate)
-        utterance.rate = 1.0; 
+            function speakWord(word) {
+                if ('speechSynthesis' in window && word !== "") {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US'; 
+                    utterance.pitch = 1.8; 
+                    utterance.rate = 1.0; 
+                    const voices = window.speechSynthesis.getVoices();
+                    const femaleVoice = voices.find(voice => 
+                        voice.lang.includes('en') && 
+                        (voice.name.toLowerCase().includes('female') || 
+                         voice.name.toLowerCase().includes('samantha') || 
+                         voice.name.toLowerCase().includes('zira'))
+                    );
+                    if (femaleVoice) {
+                        utterance.voice = femaleVoice;
+                    }
+                    window.speechSynthesis.speak(utterance);
+                }
+            }
 
-        // Lấy danh sách các giọng nói có sẵn trên trình duyệt
-        const voices = window.speechSynthesis.getVoices();
-        
-        // Cố gắng tìm một giọng nữ tiếng Anh (tùy thuộc vào trình duyệt/HĐH)
-        const femaleVoice = voices.find(voice => 
-            voice.lang.includes('en') && 
-            (voice.name.toLowerCase().includes('female') || 
-             voice.name.toLowerCase().includes('samantha') || 
-             voice.name.toLowerCase().includes('zira'))
-        );
+            if (typeof universeMusic !== 'undefined' && universeMusic) {
+                universeMusic.volume = 0.5;
+                universeMusic.currentTime = 0;
+                universeMusic.play().catch(e => console.log("Audio play blocked: ", e));
+            }
+            if (typeof bgMusic !== 'undefined' && bgMusic) {
+                bgMusic.pause();
+            }
 
-        if (femaleVoice) {
-            utterance.voice = femaleVoice;
-        }
+            document.getElementById('btn-start-universe').style.display = 'none';
+            const display = document.getElementById('countdown-display');
 
-        // Phát âm
-        window.speechSynthesis.speak(utterance);
-    } else {
-        console.log("Trình duyệt của bạn không hỗ trợ Web Speech API.");
-    }
-}
+            let count = 3;
+            const words = ["", "one", "two", "three"]; 
 
-// Đoạn code gốc của bạn
-document.getElementById('btn-start-universe').style.display = 'none';
-const display = document.getElementById('countdown-display');
-
-let count = 3;
-// Mảng đã là tiếng Anh rồi ("one", "two", "three")
-const words = ["", "one", "two", "three"]; 
-
-// Đảm bảo hàm playFwSound() đã được định nghĩa ở đâu đó trong code của bạn
-if (typeof playFwSound === "function") {
-    playFwSound(); 
-}
-
-function showNumber() {
-    if (count > 0) {
-        display.innerText = count;
-        display.classList.remove('animate-count');
-        void display.offsetWidth; // Trigger reflow để reset animation
-        display.classList.add('animate-count');
-        
-        // Gọi hàm đọc từ tiếng Anh
-        speakWord(words[count]);
-        
-        count--;
-        setTimeout(showNumber, 1000);
-    } else {
-        document.getElementById('loading-screen').classList.remove('active');
-        
-        // Đảm bảo bgMusic và universeMusic đã được khai báo
-        if (typeof bgMusic !== 'undefined') bgMusic.pause();
-        if (typeof universeMusic !== 'undefined') {
-            universeMusic.volume = 0.5;
-            universeMusic.play().catch(e => console.log("Audio play blocked: ", e));
-        }
-        
-        if (typeof goToUniverse === "function") {
-            goToUniverse();
-        }
-    }
-}
-
-showNumber();
+            function showNumber() {
+                if (count > 0) {
+                    display.innerText = count;
+                    display.classList.remove('animate-count');
+                    void display.offsetWidth; // Trigger reflow
+                    display.classList.add('animate-count');
+                    
+                    speakWord(words[count]);
+                    
+                    count--;
+                    setTimeout(showNumber, 1000);
+                } else {
+                    document.getElementById('loading-screen').classList.remove('active');
+                    
+                    if (typeof goToUniverse === "function") {
+                        goToUniverse();
+                    }
+                }
+            }
+            showNumber();
         }
 
         // --- KHAI BÁO BIẾN THREE.JS CHO MÀN 4 ---
@@ -532,7 +559,6 @@ showNumber();
             threeControls.maxDistance = 50;
             threeControls.minDistance = 5;
 
-            // Texture Sao
             function createStarTexture() {
                 const canvas = document.createElement('canvas');
                 canvas.width = 64; canvas.height = 64;
@@ -550,7 +576,6 @@ showNumber();
             }
             const starTexture = createStarTexture();
 
-            // Background Stars
             const bgStarGeometry = new THREE.BufferGeometry();
             const bgStarCount = 3000;
             const bgStarPos = new Float32Array(bgStarCount * 3);
@@ -582,7 +607,6 @@ showNumber();
             backgroundStars = new THREE.Points(bgStarGeometry, bgStarMaterial);
             threeScene.add(backgroundStars);
 
-            // Bánh Kem Stars
             const cakeGeometry = new THREE.BufferGeometry();
             const cakeCount = 40000; 
             const positions = new Float32Array(cakeCount * 3);
@@ -633,20 +657,22 @@ showNumber();
             cakeGeometry.setAttribute('isFlame', new THREE.BufferAttribute(isFlame, 1));
 
             cakeMaterial = new THREE.ShaderMaterial({
-                uniforms: { uTime: { value: 0 }, uPixelRatio: { value: threeRenderer.getPixelRatio() }, uTexture: { value: starTexture } },
+                uniforms: { uTime: { value: 0 }, uPixelRatio: { value: threeRenderer.getPixelRatio() }, uTexture: { value: starTexture }, uFlameIntensity: { value: 1.0 } },
                 vertexShader: `
-                    uniform float uTime; uniform float uPixelRatio;
+                    uniform float uTime; uniform float uPixelRatio; uniform float uFlameIntensity;
                     attribute vec3 phase; attribute vec3 color; attribute float drift; attribute float isFlame;
                     varying vec3 vColor;
                     void main() {
                         vColor = color; vec3 pos = position;
                         pos.x += sin(uTime * 1.5 + phase.x) * drift; pos.y += cos(uTime * 1.2 + phase.y) * drift; pos.z += sin(uTime * 1.8 + phase.z) * drift;
                         if (isFlame > 0.5) {
-                            float flameSpeed = 4.0; float upwardMovement = mod(uTime * flameSpeed + phase.y, 1.5);
+                            float flameSpeed = 4.0; float upwardMovement = mod(uTime * flameSpeed + phase.y, 1.5) * uFlameIntensity;
                             pos.y += upwardMovement; pos.x += sin(uTime * 8.0 + phase.x) * 0.1 * upwardMovement; pos.z += cos(uTime * 7.0 + phase.z) * 0.1 * upwardMovement;
                         }
                         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0); gl_Position = projectionMatrix * mvPosition;
-                        float pointSize = 35.0; if (isFlame > 0.5) pointSize = 45.0;
+                        float pointSize = 35.0; 
+                        if (isFlame > 0.5) pointSize = 45.0 * max(0.01, uFlameIntensity);
+                        if (isFlame > 0.5 && uFlameIntensity == 0.0) pointSize = 0.0;
                         gl_PointSize = (pointSize * uPixelRatio) / -mvPosition.z;
                     }
                 `,
@@ -665,9 +691,10 @@ showNumber();
         function goToUniverse() {
             document.getElementById('screen-universe').classList.add('active');
             currentMode = 'universe';
-            setTimeout(() => { document.getElementById('fw-btn').classList.remove('hidden'); }, 7000);
             
-            // Khởi tạo Bánh Ngàn Sao 3D
+            // Xóa nút thổi nến, chỉ hiện trực tiếp nút Bắn Pháo Hoa sau khi vào vũ trụ 3 giây
+            setTimeout(() => { document.getElementById('fw-btn').classList.remove('hidden'); }, 3000);
+            
             if(!threeJSInitialized) initThreeJSCake();
 
             spawnUniverseElements();
@@ -694,7 +721,7 @@ showNumber();
                     if(cube.classList.contains('shattered')) return;
                     cube.classList.add('shattered');
                     spawnConfetti(wrapper.getBoundingClientRect().left + 45, wrapper.getBoundingClientRect().top + 45, 30);
-                    playFwSound(); 
+                    // Đã bỏ hoàn toàn tiếng pháo hoa ở khối lập phương
                     setTimeout(() => wrapper.remove(), 1000);
                 };
                 cube.addEventListener('touchstart', shatterAction, {passive: false});
@@ -714,7 +741,7 @@ showNumber();
             }
         }
 
-        /* --- CANVAS 2D ENGINE CHO PHÁO HOA VÀ CONFETTI MÀN 1,4 --- */
+        /* --- CANVAS 2D ENGINE --- */
         const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d');
         let confettis = []; let fireworkShells = []; let fireworkParticles = [];
 
@@ -737,8 +764,8 @@ showNumber();
         }
 
         class Shell {
-            constructor(startX, startY, targetX, targetY, color) {
-                this.x = startX; this.y = startY; this.tx = targetX; this.ty = targetY; this.color = color;
+            constructor(startX, startY, targetX, targetY, hue) {
+                this.x = startX; this.y = startY; this.tx = targetX; this.ty = targetY; this.hue = hue;
                 let dx = targetX - startX; let dy = targetY - startY;
                 let distance = Math.sqrt(dx*dx + dy*dy);
                 let time = distance / 15; 
@@ -758,27 +785,47 @@ showNumber();
         }
 
         class ExplosionParticle {
-            constructor(x, y, color, isHigh) {
-                this.x = x; this.y = y; this.color = color; this.trail = [];
+            constructor(x, y, hue, isHigh) {
+                this.x = x; this.y = y; this.hue = hue; this.trail = [];
                 let angle = Math.random() * Math.PI * 2;
-                let speed = (isHigh ? Math.random() * 12 + 2 : Math.random() * 6 + 2);
-                this.vx = Math.cos(angle) * speed; this.vy = Math.sin(angle) * speed;
-                this.gravity = 0.15; this.friction = 0.95; this.alpha = 1; this.decay = Math.random() * 0.015 + 0.01;
+                let speed = (isHigh ? Math.random() * 5 + 1 : Math.random() * 3 + 1);
+                this.vx = Math.cos(angle) * speed; 
+                this.vy = Math.sin(angle) * speed;
+                this.gravity = 0.03; 
+                this.friction = 0.96; 
+                this.alpha = 1; 
+                this.decay = Math.random() * 0.008 + 0.005;
+                this.brightness = Math.random() * 20 + 70; 
             }
             update() {
-                this.trail.push({x: this.x, y: this.y}); if(this.trail.length > 8) this.trail.shift();
-                this.vx *= this.friction; this.vy *= this.friction; this.vy += this.gravity;
-                this.x += this.vx; this.y += this.vy; this.alpha -= this.decay;
+                this.trail.push({x: this.x, y: this.y}); 
+                if(this.trail.length > 5) this.trail.shift(); 
+                this.vx *= this.friction; 
+                this.vy *= this.friction; 
+                this.vy += this.gravity;
+                this.x += this.vx; 
+                this.y += this.vy; 
+                this.alpha -= this.decay;
                 return this.alpha <= 0;
             }
             draw() {
-                ctx.beginPath(); ctx.moveTo(this.trail[0]?.x || this.x, this.trail[0]?.y || this.y); ctx.lineTo(this.x, this.y);
-                ctx.strokeStyle = `rgba(${this.color}, ${this.alpha})`; ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.stroke();
+                ctx.globalCompositeOperation = 'lighter'; 
+                ctx.beginPath(); 
+                if (this.trail.length > 0) {
+                    ctx.moveTo(this.trail[0].x, this.trail[0].y); 
+                    ctx.lineTo(this.x, this.y);
+                } else {
+                    ctx.arc(this.x, this.y, 1.5, 0, Math.PI*2);
+                }
+                ctx.strokeStyle = `hsla(${this.hue}, 100%, ${this.brightness}%, ${this.alpha})`; 
+                ctx.lineWidth = Math.random() * 1.5 + 1; 
+                ctx.lineCap = 'round'; 
+                ctx.stroke();
+                ctx.globalCompositeOperation = 'source-over';
             }
         }
 
         function animate() {
-            // Xóa sạch canvas 2D thay vì fill màu nền như mã cũ, để nhìn xuyên xuống được WebGL 3D
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             if (currentMode === 'party') {
@@ -789,8 +836,6 @@ showNumber();
                     if(p.life <= 0) { confettis.splice(i, 1); i--; }
                 }
             } else if (currentMode === 'universe' || currentMode === 'fireworks') {
-                
-                // --- Cập Nhật Logic Bánh Kem Ngàn Sao 3D (Three.js) ---
                 if(threeJSInitialized) {
                     const time = threeClock.getElapsedTime();
                     cakeMaterial.uniforms.uTime.value = time;
@@ -799,15 +844,13 @@ showNumber();
                     threeControls.update();
                     threeRenderer.render(threeScene, threeCamera);
                 }
-
-                // --- Vẽ Lớp Pháo Hoa Lên Trên Bằng Canvas 2D ---
                 ctx.globalAlpha = 1;
                 for(let i=0; i<fireworkShells.length; i++) {
                     let shell = fireworkShells[i]; shell.draw();
                     if(shell.update()) {
                         let isHigh = shell.ty < canvas.height * 0.3; 
-                        let numParticles = isHigh ? 120 : 60;
-                        for(let j=0; j<numParticles; j++) fireworkParticles.push(new ExplosionParticle(shell.x, shell.y, shell.color, isHigh));
+                        let numParticles = isHigh ? 50 : 30; 
+                        for(let j=0; j<numParticles; j++) fireworkParticles.push(new ExplosionParticle(shell.x, shell.y, shell.hue, isHigh));
                         playFwSound(); 
                         fireworkShells.splice(i, 1); i--;
                     }
@@ -823,25 +866,38 @@ showNumber();
 
         function triggerUltimateFireworks() {
             document.getElementById('fw-btn').classList.add('hidden');
+            
+            // Thực hiện dập nến mượt mà khi bắt đầu bắn pháo hoa
+            let intensity = 1.0;
+            let fadeInterval = setInterval(() => {
+                intensity -= 0.05;
+                if(intensity <= 0) {
+                    intensity = 0;
+                    clearInterval(fadeInterval);
+                }
+                if (cakeMaterial) cakeMaterial.uniforms.uFlameIntensity.value = intensity;
+            }, 50);
+
             clearInterval(universeSpawnInterval); 
             document.getElementById('universe-elements').innerHTML = ''; 
             
+            // Phát tiếng nổ khi bắn pháo hoa
             playFwSound(); 
-            
             currentMode = 'fireworks';
+            
+            // Hiện chữ Happy Birthday cùng với chữ Tuổi 18 Rực Rỡ MỘT CÁCH ĐỒNG LÚC
             document.getElementById('giant-hbd').classList.add('pop-out'); 
+            document.getElementById('universe-overlay').classList.add('show'); 
 
-            universeMusic.volume = 0.2; 
-
-            const colors = ['255,20,147', '0,255,255', '255,215,0', '124,252,0', '255,69,0', '238,130,238'];
+            if (universeMusic) universeMusic.volume = 0.2; 
+            const hues = [330, 180, 50, 90, 15, 300];
             
             setInterval(() => {
                 let startX = canvas.width/2 + (Math.random()-0.5)*200; 
                 let targetX = Math.random() * canvas.width;
                 let targetY = Math.random() > 0.5 ? Math.random() * (canvas.height*0.2) + 50 : Math.random() * (canvas.height*0.3) + canvas.height*0.3; 
-                let color = colors[Math.floor(Math.random() * colors.length)];
-                
-                fireworkShells.push(new Shell(startX, canvas.height, targetX, targetY, color));
+                let hue = hues[Math.floor(Math.random() * hues.length)];
+                fireworkShells.push(new Shell(startX, canvas.height, targetX, targetY, hue));
             }, 300);
         }
     </script>
